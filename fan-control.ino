@@ -10,8 +10,15 @@ DFRobot_DHT11 DHT;
 
 int fan_pin = 5;
 int sensor = A0;
-int BAD_LEVEL = 40;
+int BAD_LEVEL = 27; // % HUMIDITY
+
+//
+// MEASURED HUM 25% IN THE ROOM - 19/11/2022 11:16 
+// BEHIND WARDROBE 37%
+//
+
 int SPEED = 0;
+int readingDelta = 30000; // 30 sec
 
 unsigned long T = 60UL*1000UL*60UL * 1UL; // 1 HOURS
 
@@ -85,7 +92,7 @@ void loop() {
     unsigned long t = (timer - millis()) / 1000UL;
     Serial.println("  TIMER " + (String)t + "sec");
 
-    delay(5000);
+    delay(readingDelta);
   
   
 }
