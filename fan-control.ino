@@ -7,12 +7,17 @@
 #include <DFRobot_DHT11.h>
 DFRobot_DHT11 DHT;
 
+//
+// when cold season often dry the wall even
+// if humidity doesn't grow over the BAD_EVEL
+bool COLD_SEASON = false;
 
 int fan_pin = 5;
 int sensor = A0;
 int BAD_LEVEL = 27; // % HUMIDITY
 
 //
+// NOVEMBER
 // MEASURED HUM 25% IN THE ROOM - 19/11/2022 11:16 
 // BEHIND WARDROBE 37%
 //
@@ -20,12 +25,14 @@ int BAD_LEVEL = 27; // % HUMIDITY
 int SPEED = 0;
 int readingDelta = 30000; // 30 sec
 
-unsigned long T = 60UL*1000UL*60UL * 1UL; // 1 HOURS
+unsigned long T = 60UL*1000UL*60UL * (COLD_SEASON ? 1UL : 1UL); // 1 HOUR main timer
+unsigned long T2 = 60UL*1000UL*60UL * (COLD_SEASON ? 1UL : 3UL); // 1 or 3 HOURS off when no BAD_LEVEL
 
 byte fan_status = 0;
 void setup() {
   pinMode(fan_pin, OUTPUT);
-  analogWrite(fan_pin,0);
+  analogWrite(fan_pin,255);
+  delay(5000);
   pinMode(sensor, INPUT);
 
   Serial.begin(9600);
@@ -55,7 +62,7 @@ void loop() {
 
     if(fan_status==2 && DHT.humidity < BAD_LEVEL) {
         fan_status= 0;
-        timer = millis() + T;
+        timer = millis() + T2;
         SPEED = 0;
         analogWrite(fan_pin, SPEED);
     }
@@ -69,7 +76,7 @@ void loop() {
 
     if(fan_status==1 && DHT.humidity < BAD_LEVEL && millis() > timer) {
         fan_status= 0;
-        timer = millis() + T;
+        timer = millis() + T2;
         SPEED = 0;
         analogWrite(fan_pin, SPEED); 
     }
